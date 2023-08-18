@@ -25,13 +25,14 @@ import javax.swing.JPasswordField;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
 import java.awt.event.ActionEvent;
+import java.awt.FlowLayout;
 
 public class Login {
 	
 	@Getter
 	public static Login instance = new Login();
 	@Getter
-	private JFrame Autenticacao;
+	private JFrame autenticacao;
 	private JTextField txtRaMilitar;
 	private JPasswordField txtSenha;
 	
@@ -40,7 +41,7 @@ public class Login {
 			public void run() {
 				try {
 					Login window = new Login();
-					window.Autenticacao.setVisible(true);
+					window.autenticacao.setVisible(true);
 				} catch (Exception e) {
 					e.printStackTrace();
 				}
@@ -49,7 +50,7 @@ public class Login {
 	}
 	
 	public void destroy() {
-		Autenticacao.dispose();
+		autenticacao.dispose();
 	}
 
 	/**
@@ -63,18 +64,18 @@ public class Login {
 	 * Initialize the contents of the frame.
 	 */
 	private void initialize() {
-		Autenticacao = new JFrame();
-		Autenticacao.setTitle("Autenticação");
-		Autenticacao.setBounds(100, 100, 354, 188);
-		Autenticacao.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		Autenticacao.setLocationRelativeTo(null);
-		Autenticacao.getContentPane().setLayout(null);
+		autenticacao = new JFrame();
+		autenticacao.setTitle("Autenticação");
+		autenticacao.setBounds(100, 100, 279, 222);
+		autenticacao.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		autenticacao.setLocationRelativeTo(null);
+		autenticacao.getContentPane().setLayout(null);
 		
 		JPanel jPainelTitulo = new JPanel();
-		jPainelTitulo.setBounds(10, 11, 318, 29);
+		jPainelTitulo.setBounds(10, 11, 242, 29);
 		jPainelTitulo.setBorder(new LineBorder(new Color(0, 0, 0)));
 		jPainelTitulo.setBorder(Main.getBorder());
-		Autenticacao.getContentPane().add(jPainelTitulo);
+		autenticacao.getContentPane().add(jPainelTitulo);
 		jPainelTitulo.setLayout(new BorderLayout(0, 0));
 		
 		JLabel lblAutenticao = new JLabel("AUTENTICAÇÃO");
@@ -83,10 +84,10 @@ public class Login {
 		jPainelTitulo.add(lblAutenticao, BorderLayout.CENTER);
 		
 		JPanel jPainelCredenciais = new JPanel();
-		jPainelCredenciais.setBounds(10, 43, 216, 95);
+		jPainelCredenciais.setBounds(10, 43, 242, 95);
 		jPainelCredenciais.setBorder(new LineBorder(new Color(0, 0, 0)));
 		jPainelCredenciais.setBorder(Main.getBorder());
-		Autenticacao.getContentPane().add(jPainelCredenciais);
+		autenticacao.getContentPane().add(jPainelCredenciais);
 		jPainelCredenciais.setLayout(null);
 		
 		JLabel lblNewLabel = new JLabel("RA Militar:");
@@ -102,26 +103,27 @@ public class Login {
 		jPainelCredenciais.add(lblNewLabel_1);
 		
 		txtRaMilitar = new JTextField();
-		txtRaMilitar.setBounds(95, 24, 105, 20);
+		txtRaMilitar.setBounds(95, 24, 126, 20);
 		jPainelCredenciais.add(txtRaMilitar);
 		txtRaMilitar.setColumns(10);
 		
 		txtSenha = new JPasswordField();
-		txtSenha.setBounds(95, 49, 105, 20);
+		txtSenha.setBounds(95, 49, 126, 20);
 		jPainelCredenciais.add(txtSenha);
 		
 		JPanel jPainelBotoes = new JPanel();
-		jPainelBotoes.setLayout(null);
-		jPainelBotoes.setBounds(236, 43, 92, 95);
+		jPainelBotoes.setBounds(10, 141, 242, 35);
 		jPainelBotoes.setBorder(new LineBorder(new Color(0, 0, 0)));
 		jPainelBotoes.setBorder(Main.getBorder());
-		Autenticacao.getContentPane().add(jPainelBotoes);
+		autenticacao.getContentPane().add(jPainelBotoes);
+		jPainelBotoes.setLayout(new FlowLayout(FlowLayout.CENTER, 5, 5));
 		
 		Button btAutenticar = new Button("Autenticar");
+		jPainelBotoes.add(btAutenticar);
 		btAutenticar.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				if(txtRaMilitar.getText().equals("admin") && new String(txtSenha.getPassword()).equals("admin")) { 
-					UsuarioDAO usuario = new UsuarioDAO("123456789123", "Dihego", "Nunes", "dihegofn.c@gmail.com", "admin", 'm', Cargo.CORONEL, true, new ArrayList<String>());
+					UsuarioDAO usuario = new UsuarioDAO("123456789123", "Dihego", "Nunes", "dihegofn.c@gmail.com", "admin", System.currentTimeMillis(), 'm', Cargo.CORONEL, true, new ArrayList<String>());
 					Main.setUsuario(usuario);		
 					destroy();
 					Painel.call();
@@ -132,24 +134,22 @@ public class Login {
 			}
 		});
 		btAutenticar.setFont(new Font("Dialog", Font.BOLD, 12));
-		btAutenticar.setBounds(10, 10, 70, 22);
-		jPainelBotoes.add(btAutenticar);
 		
 		Button btRecuperar = new Button("Recuperar");
-		btRecuperar.setFont(new Font("Dialog", Font.BOLD, 12));
-		btRecuperar.setBounds(10, 38, 70, 22);
 		jPainelBotoes.add(btRecuperar);
+		btRecuperar.setFont(new Font("Dialog", Font.BOLD, 12));
 		
 		Button btCadastrar = new Button("Cadastrar");
+		jPainelBotoes.add(btCadastrar);
 		btCadastrar.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				destroy();
-				Cadastro.call();
+				if(Main.isAutenticado()) { 
+					destroy();
+					Cadastro.call();
+				}
 			}
 		});
 		btCadastrar.setFont(new Font("Dialog", Font.BOLD, 12));
-		btCadastrar.setBounds(10, 65, 70, 22);
-		jPainelBotoes.add(btCadastrar);
 	}
 	
 	public void clear() { 

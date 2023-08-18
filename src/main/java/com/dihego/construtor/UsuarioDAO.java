@@ -12,17 +12,19 @@ import lombok.Setter;
 public class UsuarioDAO {
 	
 	String raMilitar, primeiroNome, ultimoNome, email, senha;
+	long ultimoAcesso;
 	char sexo;
 	Cargo cargo;
 	boolean autenticado;
 	List<String> permissoes;
 	
-	public UsuarioDAO(String raMilitar, String primeiroNome, String ultimoNome, String email, String senha, char sexo, Cargo cargo, boolean autenticado, List<String> permissoes) {
+	public UsuarioDAO(String raMilitar, String primeiroNome, String ultimoNome, String email, String senha, long ultimoAcesso, char sexo, Cargo cargo, boolean autenticado, List<String> permissoes) {
 		this.raMilitar = raMilitar;
 		this.primeiroNome = primeiroNome;
 		this.ultimoNome = ultimoNome;
 		this.email = email;
 		this.senha = senha;
+		this.ultimoAcesso = ultimoAcesso;
 		this.sexo = sexo;
 		this.cargo = cargo;
 		this.autenticado = autenticado;

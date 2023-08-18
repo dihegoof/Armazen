@@ -21,6 +21,7 @@ import java.awt.Font;
 import javax.swing.JPasswordField;
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
+import java.awt.FlowLayout;
 
 public class Cadastro {
 	
@@ -63,13 +64,13 @@ public class Cadastro {
 	private void initialize() {
 		cadastro = new JFrame();
 		cadastro.setTitle("Cadastro");
-		cadastro.setBounds(100, 100, 584, 195);
+		cadastro.setBounds(100, 100, 481, 227);
 		cadastro.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		cadastro.setLocationRelativeTo(null);
 		cadastro.getContentPane().setLayout(null);
 		
 		JPanel jPainelTitulo = new JPanel();
-		jPainelTitulo.setBounds(10, 11, 548, 33);
+		jPainelTitulo.setBounds(10, 11, 448, 33);
 		jPainelTitulo.setBorder(new LineBorder(new Color(0, 0, 0)));
 		jPainelTitulo.setBorder(Main.getBorder());
 		cadastro.getContentPane().add(jPainelTitulo);
@@ -152,18 +153,18 @@ public class Cadastro {
 		jPainelDados.add(txtSenha);
 		
 		JPanel jPainelBotoes = new JPanel();
-		jPainelBotoes.setBounds(468, 47, 90, 98);
+		jPainelBotoes.setBounds(10, 147, 448, 35);
 		jPainelBotoes.setBorder(new LineBorder(new Color(0, 0, 0)));
 		jPainelBotoes.setBorder(Main.getBorder());
 		cadastro.getContentPane().add(jPainelBotoes);
-		jPainelBotoes.setLayout(null);
+		jPainelBotoes.setLayout(new FlowLayout(FlowLayout.CENTER, 5, 5));
 		
 		Button btConcluir = new Button("Concluir");
-		btConcluir.setFont(new Font("Dialog", Font.BOLD, 12));
-		btConcluir.setBounds(9, 20, 70, 22);
 		jPainelBotoes.add(btConcluir);
+		btConcluir.setFont(new Font("Dialog", Font.BOLD, 12));
 		
 		Button btCancelar = new Button("Cancelar");
+		jPainelBotoes.add(btCancelar);
 		btCancelar.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				destroy();
@@ -171,7 +172,5 @@ public class Cadastro {
 			}
 		});
 		btCancelar.setFont(new Font("Dialog", Font.BOLD, 12));
-		btCancelar.setBounds(9, 47, 70, 22);
-		jPainelBotoes.add(btCancelar);
 	}
 }

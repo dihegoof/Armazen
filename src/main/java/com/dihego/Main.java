@@ -7,6 +7,7 @@ import javax.swing.border.Border;
 
 import com.dihego.construtor.UsuarioDAO;
 import com.dihego.interfaces.Login;
+import com.dihego.interfaces.Painel;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -20,6 +21,14 @@ public class Main {
 	static UsuarioDAO usuario = null;
 	
 	public static void main(String[] args) {
-		Login.call();
+		if(usuario == null) { 
+			Login.call();
+		} else { 
+			Painel.call();
+		}
+	}
+	
+	public static boolean isAutenticado()  {
+		return usuario != null && usuario.isAutenticado();
 	}
 }
