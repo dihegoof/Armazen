@@ -19,12 +19,23 @@ public class Main {
 	@Setter
 	@Getter
 	static UsuarioDAO usuario = null;
+	@Getter
+	private String enderecoSql = "localhost", usuarioSql = "root", senhaSql = "", databaseSql = "armazenamento";
+	@Getter
+	private int portaSql = 3306;
 	
 	public static void main(String[] args) {
 		if(usuario == null) { 
 			Login.call();
 		} else { 
 			Painel.call();
+		}
+	}
+	
+	public void criarTabelas() { 
+		try {
+			
+		} catch (Exception e) {
 		}
 	}
 	
