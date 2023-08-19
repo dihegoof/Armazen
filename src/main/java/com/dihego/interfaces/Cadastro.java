@@ -2,12 +2,19 @@ package com.dihego.interfaces;
 
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 import javax.swing.SwingConstants;
 import javax.swing.border.LineBorder;
+import javax.swing.text.AbstractDocument;
+import javax.swing.text.AttributeSet;
+import javax.swing.text.BadLocationException;
+import javax.swing.text.DocumentFilter;
 
+import com.dihego.Cargo;
 import com.dihego.Main;
+import com.dihego.construtor.UsuarioDAO;
 
 import lombok.Getter;
 
@@ -20,6 +27,10 @@ import java.awt.EventQueue;
 import java.awt.Font;
 import javax.swing.JPasswordField;
 import java.awt.event.ActionListener;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
+import java.util.ArrayList;
 import java.awt.event.ActionEvent;
 import java.awt.FlowLayout;
 
@@ -33,6 +44,8 @@ public class Cadastro {
 	private JTextField txtRaMilitar;
 	private JTextField txtEmail;
 	private JPasswordField txtSenha;
+	private JRadioButton rdMasculino;
+	private JRadioButton rdFeminino;
 	
 	public static void call() { 
 		EventQueue.invokeLater(new Runnable() {
@@ -95,6 +108,23 @@ public class Cadastro {
 		jPainelDados.add(lblNewLabel);
 		
 		txtPrimeiroNome = new JTextField();
+		txtPrimeiroNome.addKeyListener(new KeyListener() {
+			
+            @Override
+            public void keyTyped(KeyEvent e) {
+                char c = e.getKeyChar();
+                if (!Character.isLetter(c) && c != KeyEvent.VK_BACK_SPACE && c != KeyEvent.VK_DELETE) {
+                    e.consume();
+                }
+            }
+
+			@Override
+			public void keyPressed(KeyEvent e) { }
+
+			@Override
+			public void keyReleased(KeyEvent e) { }
+        });
+		
 		txtPrimeiroNome.setBounds(108, 8, 148, 20);
 		jPainelDados.add(txtPrimeiroNome);
 		txtPrimeiroNome.setColumns(10);
@@ -106,6 +136,22 @@ public class Cadastro {
 		jPainelDados.add(lblSegundoNome);
 		
 		txtSegundoNome = new JTextField();
+		txtSegundoNome.addKeyListener(new KeyListener() {
+			
+            @Override
+            public void keyTyped(KeyEvent e) {
+                char c = e.getKeyChar();
+                if (!Character.isLetter(c) && c != KeyEvent.VK_BACK_SPACE && c != KeyEvent.VK_DELETE) {
+                    e.consume();
+                }
+            }
+            
+            @Override
+			public void keyPressed(KeyEvent e) { }
+
+			@Override
+			public void keyReleased(KeyEvent e) { }
+        });
 		txtSegundoNome.setColumns(10);
 		txtSegundoNome.setBounds(108, 36, 148, 20);
 		jPainelDados.add(txtSegundoNome);
@@ -117,6 +163,33 @@ public class Cadastro {
 		jPainelDados.add(lblRaMilitar);
 		
 		txtRaMilitar = new JTextField();
+		((AbstractDocument) txtRaMilitar.getDocument()).setDocumentFilter(new DocumentFilter() {
+			@Override
+			public void insertString(FilterBypass fb, int offset, String text, AttributeSet attr) throws BadLocationException {
+				if (text.matches("\\d+")) {
+					super.insertString(fb, offset, text, attr);
+				}
+			}
+			
+			@Override
+			public void replace(FilterBypass fb, int offset, int length, String text, AttributeSet attrs) throws BadLocationException {
+				if (text.matches("\\d+")) {
+					super.replace(fb, offset, length, text, attrs);
+				}
+			}
+		});
+		txtRaMilitar.addKeyListener(new KeyAdapter() {
+			
+			@Override
+			public void keyPressed(KeyEvent e) {
+				if(Character.isDigit(e.getKeyChar())) { 
+					if(txtRaMilitar.getText().length() >= 11) { 
+						txtRaMilitar.setText(String.valueOf(txtRaMilitar.getText()).substring(0, 11));
+						return;
+					}
+				}
+			}
+		});
 		txtRaMilitar.setColumns(10);
 		txtRaMilitar.setBounds(108, 63, 148, 20);
 		jPainelDados.add(txtRaMilitar);
@@ -132,12 +205,26 @@ public class Cadastro {
 		txtEmail.setBounds(308, 8, 127, 20);
 		jPainelDados.add(txtEmail);
 		
-		JRadioButton rdMasculino = new JRadioButton("Masculino");
+		rdMasculino = new JRadioButton("Masculino");
+		rdMasculino.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				if(rdFeminino.isSelected()) { 
+					rdFeminino.setSelected(false);
+				}
+			}
+		});
 		rdMasculino.setFont(new Font("Tahoma", Font.BOLD, 11));
 		rdMasculino.setBounds(267, 62, 83, 23);
 		jPainelDados.add(rdMasculino);
 		
-		JRadioButton rdFeminino = new JRadioButton("Feminino");
+		rdFeminino = new JRadioButton("Feminino");
+		rdFeminino.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				if(rdMasculino.isSelected()) { 
+					rdMasculino.setSelected(false);
+				}
+			}
+		});
 		rdFeminino.setFont(new Font("Tahoma", Font.BOLD, 11));
 		rdFeminino.setBounds(352, 62, 83, 23);
 		jPainelDados.add(rdFeminino);
@@ -160,6 +247,23 @@ public class Cadastro {
 		jPainelBotoes.setLayout(new FlowLayout(FlowLayout.CENTER, 5, 5));
 		
 		Button btConcluir = new Button("Concluir");
+		btConcluir.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				if(tudoPreenchido()) { 
+					UsuarioDAO usuario = new UsuarioDAO(txtRaMilitar.getText(), txtPrimeiroNome.getText(), txtSegundoNome.getText(), txtEmail.getText(), String.valueOf(txtSenha.getPassword()), System.currentTimeMillis(), (rdFeminino.isSelected() ? 'f' : 'm'), Cargo.CORONEL, false, new ArrayList<String>());
+					if(!usuario.jaExiste()) { 
+						usuario.cadastrar();
+						JOptionPane.showMessageDialog(null, "Cadastro concluido!");
+						destroy();
+						Login.call();
+					} else { 
+						JOptionPane.showMessageDialog(null, "Este RA Militar já está cadastrado em nosso banco de dados!");
+					}
+				} else { 
+					JOptionPane.showMessageDialog(null, "Você precisa preencher todos os campos!");
+				}
+			}
+		});
 		jPainelBotoes.add(btConcluir);
 		btConcluir.setFont(new Font("Dialog", Font.BOLD, 12));
 		
@@ -172,5 +276,9 @@ public class Cadastro {
 			}
 		});
 		btCancelar.setFont(new Font("Dialog", Font.BOLD, 12));
+	}
+	
+	public boolean tudoPreenchido() {
+		return txtPrimeiroNome.getText() != null && txtSegundoNome.getText() != null && txtRaMilitar.getText() != null && txtEmail.getText() != null && txtSenha.getPassword() != null && rdFeminino.isSelected() || rdMasculino.isSelected(); 
 	}
 }

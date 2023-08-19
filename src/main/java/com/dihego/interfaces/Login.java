@@ -12,6 +12,10 @@ import java.awt.EventQueue;
 
 import javax.swing.JTextField;
 import javax.swing.border.LineBorder;
+import javax.swing.text.AbstractDocument;
+import javax.swing.text.AttributeSet;
+import javax.swing.text.BadLocationException;
+import javax.swing.text.DocumentFilter;
 
 import com.dihego.Cargo;
 import com.dihego.Main;
@@ -23,7 +27,11 @@ import javax.swing.SwingConstants;
 import java.awt.Font;
 import javax.swing.JPasswordField;
 import java.awt.event.ActionListener;
-import java.util.ArrayList;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
+import java.sql.ResultSet;
+import java.sql.Statement;
+import java.util.Arrays;
 import java.awt.event.ActionEvent;
 import java.awt.FlowLayout;
 
@@ -103,6 +111,33 @@ public class Login {
 		jPainelCredenciais.add(lblNewLabel_1);
 		
 		txtRaMilitar = new JTextField();
+		((AbstractDocument) txtRaMilitar.getDocument()).setDocumentFilter(new DocumentFilter() {
+			@Override
+			public void insertString(FilterBypass fb, int offset, String text, AttributeSet attr) throws BadLocationException {
+				if (text != null && text.matches("\\d+")) {
+					super.insertString(fb, offset, text, attr);
+				}
+			}
+			
+			@Override
+			public void replace(FilterBypass fb, int offset, int length, String text, AttributeSet attrs) throws BadLocationException {
+				if (text != null && text.matches("\\d+")) {
+					super.replace(fb, offset, length, text, attrs);
+				}
+			}
+		});
+		txtRaMilitar.addKeyListener(new KeyAdapter() {
+			
+			@Override
+			public void keyPressed(KeyEvent e) {
+				if(Character.isDigit(e.getKeyChar())) { 
+					if(txtRaMilitar.getText().length() >= 11) { 
+						txtRaMilitar.setText(String.valueOf(txtRaMilitar.getText()).substring(0, 11));
+						return;
+					}
+				}
+			}
+		});
 		txtRaMilitar.setBounds(95, 24, 126, 20);
 		jPainelCredenciais.add(txtRaMilitar);
 		txtRaMilitar.setColumns(10);
@@ -122,14 +157,20 @@ public class Login {
 		jPainelBotoes.add(btAutenticar);
 		btAutenticar.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				if(txtRaMilitar.getText().equals("admin") && new String(txtSenha.getPassword()).equals("admin")) { 
-					UsuarioDAO usuario = new UsuarioDAO("123456789123", "Dihego", "Nunes", "dihegofn.c@gmail.com", "admin", System.currentTimeMillis(), 'm', Cargo.CORONEL, true, new ArrayList<String>());
-					Main.setUsuario(usuario);		
-					destroy();
-					Painel.call();
+				if(txtRaMilitar.getText() != null && String.valueOf(txtSenha.getPassword()) != null) { 
+					UsuarioDAO usuario = getUser(txtRaMilitar.getText(), String.valueOf(txtSenha.getPassword()));
+					if(usuario != null) { 
+						Main.setUsuario(usuario);
+						usuario.setAutenticado(true);
+						destroy();
+						Painel.call();
+					} else { 
+						clear();
+						JOptionPane.showMessageDialog(null, "Credenciais inválidos!");
+					}
 				} else { 
 					clear();
-					JOptionPane.showMessageDialog(null, "Credenciais inválidos!");
+					JOptionPane.showMessageDialog(null, "Você precisa preencher todos os campos!");
 				}
 			}
 		});
@@ -143,10 +184,8 @@ public class Login {
 		jPainelBotoes.add(btCadastrar);
 		btCadastrar.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				if(Main.isAutenticado()) { 
-					destroy();
-					Cadastro.call();
-				}
+				destroy();
+				Cadastro.call();
 			}
 		});
 		btCadastrar.setFont(new Font("Dialog", Font.BOLD, 12));
@@ -155,5 +194,23 @@ public class Login {
 	public void clear() { 
 		txtRaMilitar.setText(null);
 		txtSenha.setText(null);
+	}
+	
+	public UsuarioDAO getUser(String raMilitar, String senha) { 
+		UsuarioDAO usuario = null;
+		try {
+			Statement stmt = Main.getMySql().getConexao().createStatement();
+			stmt.executeQuery("SELECT * FROM `usuarios` WHERE `raMilitar` = '" + raMilitar + "'");
+			ResultSet rs = stmt.getResultSet();
+			if(rs.next()) { 
+				usuario = new UsuarioDAO(raMilitar, rs.getString("primeiroNome"), rs.getString("ultimoNome"), rs.getString("email"), rs.getString("senha"), rs.getLong("ultimoAcesso"), 'm', Cargo.valueOf(rs.getString("cargo")), false, Arrays.asList(rs.getString("permissoes")));
+				if(!usuario.getSenha().equals(senha)) { 
+					usuario = null;
+				}
+			}
+		} catch (Exception e) {
+			Main.debug("Ocorreu um erro ao carregar usuário!", e.getMessage());
+		}
+		return usuario;
 	}
 }

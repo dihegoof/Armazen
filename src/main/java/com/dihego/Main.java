@@ -8,6 +8,7 @@ import javax.swing.border.Border;
 import com.dihego.construtor.UsuarioDAO;
 import com.dihego.interfaces.Login;
 import com.dihego.interfaces.Painel;
+import com.dihego.sql.MySql;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -20,11 +21,12 @@ public class Main {
 	@Getter
 	static UsuarioDAO usuario = null;
 	@Getter
-	private String enderecoSql = "localhost", usuarioSql = "root", senhaSql = "", databaseSql = "armazenamento";
+	static MySql mySql = null;
 	@Getter
-	private int portaSql = 3306;
+	static boolean debug = true;
 	
 	public static void main(String[] args) {
+		mySql = new MySql("localhost", "root", "", "armazenamento");
 		if(usuario == null) { 
 			Login.call();
 		} else { 
@@ -32,14 +34,18 @@ public class Main {
 		}
 	}
 	
-	public void criarTabelas() { 
-		try {
-			
-		} catch (Exception e) {
+	public static boolean isAutenticado()  {
+		return usuario != null && usuario.isAutenticado();
+	}
+	
+	public static void debug(String... mensagens) { 
+		if(!debug) return;
+		for(String linha : mensagens) { 
+			System.out.println(linha);
 		}
 	}
 	
-	public static boolean isAutenticado()  {
-		return usuario != null && usuario.isAutenticado();
+	public static boolean hasApagar(int code) { 
+		return code == 8;
 	}
 }

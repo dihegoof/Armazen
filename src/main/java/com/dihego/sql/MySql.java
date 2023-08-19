@@ -6,91 +6,58 @@ import java.sql.Statement;
 import java.util.Arrays;
 import java.util.List;
 
+import com.dihego.Main;
+
+import lombok.Getter;
+import lombok.Setter;
+
 public class MySql {
 	
-	String address, user, password, database;
-	Connection conn;
-
-	public MySql(String address, String user, String password, String database) {
-		this.address = address;
-		this.user = user;
-		this.password = password;
-		this.database = database;
-		open();
+	@Getter
+	@Setter
+	String enderecoSql, usuarioSql, senhaSql, databaseSql;
+	@Getter
+	Connection conexao;
+	List<String> tabelas = Arrays.asList(
+			"CREATE TABLE IF NOT EXISTS `usuarios` (`raMilitar` VARCHAR(12) NOT NULL, `primeiroNome` VARCHAR(32) NOT NULL, `ultimoNome` VARCHAR(32) NOT NULL, `email` VARCHAR(32) NOT NULL, `senha` VARCHAR(32) NOT NULL, `ultimoAcesso` LONG, `sexo` VARCHAR(1) NOT NULL, `cargo` VARCHAR(32) NOT NULL, `permissoes` TEXT);"
+			);
+	
+	public MySql(String enderecoSql, String usuarioSql, String senhaSql, String databaseSql) {
+		this.enderecoSql = enderecoSql;
+		this.usuarioSql = usuarioSql;
+		this.senhaSql = senhaSql;
+		this.databaseSql = databaseSql;
+		iniciarConexao();
 	}
 	
-	public void open() {
+	public void iniciarConexao() {
 		try {
-			Connection conexao = DriverManager.getConnection("jdbc:mysql://" + address + ":3306/" + database, user, password);
-			if(conn == null) {
-				this.conn = conexao;
-			}
-			create();
+			Connection conexao = DriverManager.getConnection("jdbc:mysql://" + this.enderecoSql + ":3306/" + this.databaseSql, this.usuarioSql, this.senhaSql);
+			Main.debug("Conexão iniciada!");
+			this.conexao = conexao;
+			criarTabelas();
+		} catch (Exception e) {
+			Main.debug("Ocorreu um erro ao iniciar a conexão!", e.getLocalizedMessage());
+		}
+	}
+	
+	public void fecharConexao() { 
+		try {
+			if(conexao != null) 
+				this.conexao.close();
 		} catch (Exception e) {
 		}
 	}
 	
-	public void close() { 
+	public void criarTabelas() {
 		try {
-			if(conn != null) {
-				this.conn.close();
+			Statement stmt = this.conexao.createStatement();
+			for(String linhas : tabelas) { 
+				stmt.executeUpdate(linhas);
 			}
+			Main.debug("Tabelas criadas!");
 		} catch (Exception e) {
+			Main.debug("Ocorreu um erro ao criar as tabelas!", e.getLocalizedMessage());
 		}
-	}
-	
-	public void create() {
-		List<String> list = Arrays.asList(
-				"CREATE TABLE `login` (`cpf` VARCHAR(32) NOT NULL, `senha` VARCHAR(32) NOT NULL);",
-				"CREATE TABLE `cliente` (`primeironome` VARCHAR(32) NOT NULL, `ultimonome` VARCHAR(32) NOT NULL, `celular` VARCHAR(32) NOT NULL, `cpf` VARCHAR(32) NOT NULL, `rg` VARCHAR(32) NOT NULL, `datanascimento` INT, `email` VARCHAR(64) NOT NULL);",
-				"CREATE TABLE `produto` (`nome` VARCHAR(64) NOT NULL, `marca` VARCHAR(32) NOT NULL, `tipo` VARCHAR(32) NOT NULL, `sabor` VARCHAR(32) NOT NULL, `preco` LONG, `descricao` TEXT);"
-		);
-		try {
-			Statement stmt = getConn().createStatement();
-			for(String names : list) { 
-				stmt.executeUpdate(names);
-			}
-		} catch (Exception e) {
-		}
-	}
-
-	public String getAddress() {
-		return address;
-	}
-
-	public void setAddress(String address) {
-		this.address = address;
-	}
-
-	public String getUser() {
-		return user;
-	}
-
-	public void setUser(String user) {
-		this.user = user;
-	}
-
-	public String getPassword() {
-		return password;
-	}
-
-	public void setPassword(String password) {
-		this.password = password;
-	}
-
-	public String getDatabase() {
-		return database;
-	}
-
-	public void setDatabase(String database) {
-		this.database = database;
-	}
-
-	public Connection getConn() {
-		return conn;
-	}
-
-	public void setConn(Connection conn) {
-		this.conn = conn;
 	}
 }
